@@ -1,2 +1,1 @@
-# Typing-Speed-Tester
-A sleek, dark-themed Typing Speed Tester that challenges users to type randomly generated passages as quickly and accurately as possible
+A sleek, dark-themed Typing Speed Tester that challenges users to type randomly generated passages as quickly and accurately as possible. It features real-time highlighting of correct and incorrect characters, live calculation of Words Per Minute (WPM) and accuracy, and automatically displays results upon completion. The responsive design, smooth animations, and modern interface make it engaging and user-friendly for all skill levels.
