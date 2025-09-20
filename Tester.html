@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Typing Speed Tester - Dark Theme</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #0f111a;
+      color: #e2e8f0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      font-weight: 700;
+      color: #7c3aed;
+      text-align: center;
+    }
+
+    .card {
+      background: #1e2230;
+      padding: 25px;
+      border-radius: 16px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+      max-width: 700px;
+      width: 100%;
+      text-align: center;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 25px rgba(0,0,0,0.5);
+    }
+
+    #quote {
+      background: #2c3145;
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      font-size: 18px;
+      line-height: 1.7;
+      text-align: left;
+      color: #cbd5e1;
+      user-select: none;
+      min-height: 80px;
+    }
+
+    #input {
+      width: 100%;
+      height: 120px;
+      font-size: 18px;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      outline: none;
+      background: #2c3145;
+      color: #e2e8f0;
+      resize: none;
+      transition: box-shadow 0.3s ease;
+    }
+
+    #input:focus {
+      box-shadow: 0 0 12px #7c3aed;
+    }
+
+    .highlight {
+      display: inline;
+      transition: color 0.2s ease;
+    }
+    .correct { color: #22c55e; }
+    .wrong { color: #ef4444; text-decoration: underline; }
+
+    .stats {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 20px;
+      font-weight: 600;
+      font-size: 18px;
+      color: #cbd5e1;
+    }
+
+    .result {
+      margin-top: 20px;
+      font-size: 20px;
+      font-weight: 700;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: 0.5s ease;
+    }
+    .result.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 12px 25px;
+      border: none;
+      border-radius: 12px;
+      background: #7c3aed;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+    button:hover { background: #5b21b6; }
+
+    /* Responsive */
+    @media (max-width: 760px) {
+      #quote, #input { font-size: 16px; }
+      .stats { flex-direction: column; gap: 10px; font-size: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Typing Speed Tester ⌨️</h1>
+
+  <div class="card">
+    <div id="quote"></div>
+    <textarea id="input" placeholder="Start typing here..." disabled></textarea>
+    <div class="stats">
+      <div>WPM: <span id="wpm">0</span></div>
+      <div>Accuracy: <span id="accuracy">100</span>%</div>
+    </div>
+    <div class="result" id="result"></div>
+    <button onclick="restartTest()">Restart</button>
+  </div>
+
+<script>
+const quotes = [
+  "Success is not final, failure is not fatal: it is the courage to continue that counts.",
+  "The future belongs to those who believe in the beauty of their dreams.",
+  "Do not watch the clock. Do what it does. Keep going.",
+  "Opportunities don't happen. You create them.",
+  "Consistency is the key to mastering any skill over time."
+];
+
+const quoteEl = document.getElementById("quote");
+const inputEl = document.getElementById("input");
+const wpmEl = document.getElementById("wpm");
+const accEl = document.getElementById("accuracy");
+const resultEl = document.getElementById("result");
+
+let startTime, currentQuote;
+
+function newQuote() {
+  currentQuote = quotes[Math.floor(Math.random() * quotes.length)];
+  quoteEl.innerHTML = '';
+  currentQuote.split('').forEach(char => {
+    const span = document.createElement('span');
+    span.textContent = char;
+    span.className = 'highlight';
+    quoteEl.appendChild(span);
+  });
+  inputEl.value = '';
+  inputEl.disabled = false;
+  inputEl.focus();
+  resultEl.textContent = '';
+  resultEl.classList.remove("show");
+  startTime = null;
+  wpmEl.textContent = '0';
+  accEl.textContent = '100';
+}
+
+inputEl.addEventListener("input", () => {
+  const typed = inputEl.value;
+  if (!startTime) startTime = new Date();
+
+  const spans = quoteEl.querySelectorAll('span');
+  let correctChars = 0;
+
+  spans.forEach((span, idx) => {
+    const char = typed[idx];
+    if (char == null) {
+      span.classList.remove('correct','wrong');
+    } else if (char === span.textContent) {
+      span.classList.add('correct');
+      span.classList.remove('wrong');
+      correctChars++;
+    } else {
+      span.classList.add('wrong');
+      span.classList.remove('correct');
+    }
+  });
+
+  const accuracy = typed.length ? Math.round((correctChars / typed.length) * 100) : 100;
+  const elapsedMin = ((new Date() - startTime) / 1000) / 60;
+  const wpm = Math.round(correctChars / 5 / elapsedMin);
+
+  wpmEl.textContent = isFinite(wpm) ? wpm : 0;
+  accEl.textContent = accuracy;
+
+  if (typed === currentQuote) {
+    inputEl.disabled = true;
+    resultEl.innerHTML = `✅ WPM: <b>${wpm}</b> | 🎯 Accuracy: <b>${accuracy}%</b>`;
+    resultEl.classList.add("show");
+    setTimeout(newQuote, 4000);
+  }
+});
+
+function restartTest() {
+  newQuote();
+}
+
+// Initialize
+newQuote();
+</script>
+
+</body>
+</html>
